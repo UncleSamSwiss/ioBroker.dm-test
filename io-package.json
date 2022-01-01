@@ -1,0 +1,73 @@
+{
+	"common": {
+		"name": "dm-test",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "DM Testing",
+		"titleLang": {
+			"en": "DM Testing",
+			"de": "DM Testing",
+			"ru": "DM Testing",
+			"pt": "DM Testing",
+			"nl": "DM Testing",
+			"fr": "DM Testing",
+			"it": "DM Testing",
+			"es": "DM Testing",
+			"pl": "DM Testing",
+			"zh-cn": "DM Testing"
+		},
+		"desc": {
+			"en": "Only for testing the DM adapter",
+			"de": "Only for testing the DM adapter",
+			"ru": "Only for testing the DM adapter",
+			"pt": "Only for testing the DM adapter",
+			"nl": "Only for testing the DM adapter",
+			"fr": "Only for testing the DM adapter",
+			"it": "Only for testing the DM adapter",
+			"es": "Only for testing the DM adapter",
+			"pl": "Only for testing the DM adapter",
+			"zh-cn": "Only for testing the DM adapter"
+		},
+		"authors": ["UncleSamSwiss <samuel.weibel@gmail.com>"],
+		"keywords": ["ioBroker", "template", "Smart Home", "home automation"],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "build/main.js",
+		"icon": "dm-test.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/UncleSamSwiss/ioBroker.dm-test/main/admin/dm-test.png",
+		"readme": "https://github.com/UncleSamSwiss/ioBroker.dm-test/blob/main/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "household",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "push",
+		"materialize": true,
+		"messagebox": true,
+		"dependencies": [
+			{
+				"js-controller": ">=2.0.0"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": []
+}
