@@ -171,6 +171,7 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
         switch (actionId) {
             case "play":
                 this.log.info(`Play was pressed on ${deviceId}`);
+                await this.delay(2000);
                 return { refresh: false };
             case "pause":
                 this.log.info(`Pause was pressed on ${deviceId}`);
@@ -186,6 +187,7 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                     await context.showMessage("You cancelled the previous form!");
                 }
                 else {
+                    await this.delay(2000);
                     await context.showMessage(`You entered: ${JSON.stringify(data)}`);
                 }
                 return { refresh: false };
