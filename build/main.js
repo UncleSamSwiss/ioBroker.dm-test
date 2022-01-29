@@ -100,6 +100,15 @@ const demoFormSchema = {
     },
 };
 class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
+    getInstanceInfo() {
+        return {
+            ...super.getInstanceInfo(),
+            actions: [
+                { id: "search", icon: "search", title: "Search", description: "Search for new devices" },
+                { id: "pair", icon: "link", title: "Pair", disabled: true },
+            ],
+        };
+    }
     async listDevices() {
         return [
             { id: "test-123", name: "Test 123", status: "connected" },
@@ -140,6 +149,24 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
             },
         ];
     }
+    async handleInstanceAction(actionId, context) {
+        switch (actionId) {
+            case "search":
+                this.log.info(`Search was pressed`);
+                const progress = await context.openProgress("Searching...", { label: "0%" });
+                await this.delay(500);
+                for (let i = 10; i <= 100; i += 10) {
+                    await this.delay(300);
+                    this.log.info(`Progress at ${i}%`);
+                    await progress.update({ value: i, label: `${i}%` });
+                }
+                await this.delay(1000);
+                await progress.close();
+                return { refresh: true };
+            default:
+                throw new Error(`Unknown action ${actionId}`);
+        }
+    }
     async handleDeviceAction(deviceId, actionId, context) {
         switch (actionId) {
             case "play":
@@ -151,7 +178,10 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                 return { refresh: confirm ? "device" : "instance" };
             case "forms":
                 this.log.info(`Forms was pressed on ${deviceId}`);
-                const data = await context.showForm(demoFormSchema, { myPort: 8081, secondPort: 8082 });
+                const data = await context.showForm(demoFormSchema, {
+                    data: { myPort: 8081, secondPort: 8082 },
+                    title: "Edit this form",
+                });
                 if (!data) {
                     await context.showMessage("You cancelled the previous form!");
                 }
@@ -182,6 +212,9 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
             },
         };
         return { id, schema };
+    }
+    delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }
 class DmTest extends utils.Adapter {

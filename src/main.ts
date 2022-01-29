@@ -5,7 +5,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
-import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh } from "dm-utils";
+import { ActionContext, DeviceDetails, DeviceInfo, DeviceManagement, DeviceRefresh, InstanceDetails } from "dm-utils";
 
 // Load your modules here, e.g.:
 // import * as fs from "fs";
@@ -83,6 +83,16 @@ const demoFormSchema = {
 };
 
 class DmTestDeviceManagement extends DeviceManagement<DmTest> {
+	protected getInstanceInfo(): InstanceDetails {
+		return {
+			...(super.getInstanceInfo() as InstanceDetails),
+			actions: [
+				{ id: "search", icon: "search", title: "Search", description: "Search for new devices" },
+				{ id: "pair", icon: "link", title: "Pair", disabled: true },
+			],
+		};
+	}
+
 	protected async listDevices(): Promise<DeviceInfo[]> {
 		return [
 			{ id: "test-123", name: "Test 123", status: "connected" },
@@ -124,6 +134,25 @@ class DmTestDeviceManagement extends DeviceManagement<DmTest> {
 		];
 	}
 
+	protected async handleInstanceAction(actionId: string, context: ActionContext): Promise<{ refresh: boolean }> {
+		switch (actionId) {
+			case "search":
+				this.log.info(`Search was pressed`);
+				const progress = await context.openProgress("Searching...", { label: "0%" });
+				await this.delay(500);
+				for (let i = 10; i <= 100; i += 10) {
+					await this.delay(300);
+					this.log.info(`Progress at ${i}%`);
+					await progress.update({ value: i, label: `${i}%` });
+				}
+				await this.delay(1000);
+				await progress.close();
+				return { refresh: true };
+			default:
+				throw new Error(`Unknown action ${actionId}`);
+		}
+	}
+
 	protected override async handleDeviceAction(
 		deviceId: string,
 		actionId: string,
@@ -139,7 +168,10 @@ class DmTestDeviceManagement extends DeviceManagement<DmTest> {
 				return { refresh: confirm ? "device" : "instance" };
 			case "forms":
 				this.log.info(`Forms was pressed on ${deviceId}`);
-				const data = await context.showForm(demoFormSchema, { myPort: 8081, secondPort: 8082 });
+				const data = await context.showForm(demoFormSchema, {
+					data: { myPort: 8081, secondPort: 8082 },
+					title: "Edit this form",
+				});
 				if (!data) {
 					await context.showMessage("You cancelled the previous form!");
 				} else {
@@ -170,6 +202,10 @@ class DmTestDeviceManagement extends DeviceManagement<DmTest> {
 			},
 		};
 		return { id, schema };
+	}
+
+	private delay(ms: number): Promise<void> {
+		return new Promise<void>((resolve) => setTimeout(resolve, ms));
 	}
 }
 
