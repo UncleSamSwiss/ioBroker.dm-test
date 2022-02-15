@@ -158,7 +158,7 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
             {
                 id: "test-ABC",
                 name: "Test ABC",
-                status: "connected",
+                status: ["connected", { icon: "signal" }],
                 actions: [
                     {
                         id: "forms",

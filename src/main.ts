@@ -145,7 +145,7 @@ class DmTestDeviceManagement extends DeviceManagement<DmTest> {
 			{
 				id: "test-ABC",
 				name: "Test ABC",
-				status: "connected",
+				status: ["connected", { icon: "signal" }],
 				actions: [
 					{
 						id: "forms",
