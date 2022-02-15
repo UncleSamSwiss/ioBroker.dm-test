@@ -100,14 +100,33 @@ const demoFormSchema = {
     },
 };
 class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
-    getInstanceInfo() {
+    async getInstanceInfo() {
         return {
-            ...super.getInstanceInfo(),
+            ...(await super.getInstanceInfo()),
             actions: [
-                { id: "search", icon: "search", title: "Search", description: "Search for new devices" },
-                { id: "pair", icon: "link", title: "Pair", disabled: true },
+                {
+                    id: "search",
+                    handler: this.handleSearch.bind(this),
+                    icon: "search",
+                    title: "Search",
+                    description: "Search for new devices",
+                },
+                { id: "pair", icon: "link", title: "Pair" },
             ],
         };
+    }
+    async handleSearch(context) {
+        this.log.info(`Search was pressed`);
+        const progress = await context.openProgress("Searching...", { label: "0%" });
+        await this.delay(500);
+        for (let i = 10; i <= 100; i += 10) {
+            await this.delay(300);
+            this.log.info(`Progress at ${i}%`);
+            await progress.update({ value: i, label: `${i}%` });
+        }
+        await this.delay(1000);
+        await progress.close();
+        return { refresh: true };
     }
     async listDevices() {
         return [
@@ -120,10 +139,12 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                 actions: [
                     {
                         id: "play",
+                        handler: this.handlePlay.bind(this),
                         icon: "fas fa-play",
                     },
                     {
                         id: "pause",
+                        handler: this.handlePause.bind(this),
                         icon: "fa-pause",
                         description: "Pause device",
                     },
@@ -131,7 +152,6 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                         id: "forward",
                         icon: "forward",
                         description: "Forward",
-                        disabled: true,
                     },
                 ],
             },
@@ -142,12 +162,38 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                 actions: [
                     {
                         id: "forms",
+                        handler: this.handleForms.bind(this),
                         icon: "fab fa-wpforms",
                         description: "Show forms flow",
                     },
                 ],
             },
         ];
+    }
+    async handlePlay(deviceId, _context) {
+        this.log.info(`Play was pressed on ${deviceId}`);
+        await this.delay(2000);
+        return { refresh: false };
+    }
+    async handlePause(deviceId, context) {
+        this.log.info(`Pause was pressed on ${deviceId}`);
+        const confirm = await context.showConfirmation("Do you want to refresh the device only?");
+        return { refresh: confirm ? "device" : "instance" };
+    }
+    async handleForms(deviceId, context) {
+        this.log.info(`Forms was pressed on ${deviceId}`);
+        const data = await context.showForm(demoFormSchema, {
+            data: { myPort: 8081, secondPort: 8082 },
+            title: "Edit this form",
+        });
+        if (!data) {
+            await context.showMessage("You cancelled the previous form!");
+        }
+        else {
+            await this.delay(2000);
+            await context.showMessage(`You entered: ${JSON.stringify(data)}`);
+        }
+        return { refresh: false };
     }
     async handleInstanceAction(actionId, context) {
         switch (actionId) {
@@ -163,34 +209,6 @@ class DmTestDeviceManagement extends dm_utils_1.DeviceManagement {
                 await this.delay(1000);
                 await progress.close();
                 return { refresh: true };
-            default:
-                throw new Error(`Unknown action ${actionId}`);
-        }
-    }
-    async handleDeviceAction(deviceId, actionId, context) {
-        switch (actionId) {
-            case "play":
-                this.log.info(`Play was pressed on ${deviceId}`);
-                await this.delay(2000);
-                return { refresh: false };
-            case "pause":
-                this.log.info(`Pause was pressed on ${deviceId}`);
-                const confirm = await context.showConfirmation("Do you want to refresh the device only?");
-                return { refresh: confirm ? "device" : "instance" };
-            case "forms":
-                this.log.info(`Forms was pressed on ${deviceId}`);
-                const data = await context.showForm(demoFormSchema, {
-                    data: { myPort: 8081, secondPort: 8082 },
-                    title: "Edit this form",
-                });
-                if (!data) {
-                    await context.showMessage("You cancelled the previous form!");
-                }
-                else {
-                    await this.delay(2000);
-                    await context.showMessage(`You entered: ${JSON.stringify(data)}`);
-                }
-                return { refresh: false };
             default:
                 throw new Error(`Unknown action ${actionId}`);
         }
